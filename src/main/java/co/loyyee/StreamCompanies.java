@@ -7,17 +7,26 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 public class StreamCompanies {
   private static final String filename = "largest_companies.csv";
   private final FileHandler fh = new FileHandler();
   private List<Company> companies = new ArrayList<>();
-  
+
   public StreamCompanies() {
     this.companies = getCompaniesFromCsv(fh);
   }
-  
-  public static void main(String[] args) {}
+
+  public static void main(String[] args) {
+
+    StreamCompanies sc = new StreamCompanies();
+		try {
+			sc.covertStringToBigDecimal("JPMorgan Chase", "hello");
+		} catch (NoSuchFieldException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
   public static List<Company> getCompaniesFromCsv(FileHandler fh) {
 
@@ -37,9 +46,9 @@ public class StreamCompanies {
     }
     return companies;
   }
-  
+
   public List<Company> getCompanies() {
-    return companies.subList(1, companies.size() );
+    return companies.subList(1, companies.size());
   }
 
   public Company getCompanyByOrgName(String orgName) {
@@ -55,34 +64,25 @@ public class StreamCompanies {
         .count();
   }
 
-  public BigDecimal covertStringToBigDecimal(String orgName, String column) {
+  public Optional<BigDecimal> covertStringToBigDecimal(String orgName, String column) throws NoSuchFieldException {
     BigDecimal bMultiplier = new BigDecimal("100000000"); // billion multiplier
-    BigDecimal mMultiplier = new BigDecimal("100000000"); // million multipler
-
+    BigDecimal mMultiplier = new BigDecimal("1000000"); // million multiplier
     Company target = getCompanyByOrgName(orgName);
-    String value =
-        switch (column.toLowerCase()) {
-          case "revenue" -> target.revenue();
-          case "profits" -> target.profits();
-          case "marketValue" -> target.marketValue();
-          case "assets" -> target.assets();
-          default -> null;
-        };
-    try {
-      if (value == null) {
-        throw new NoSuchFieldException("Only pick revenue, profits, marketValue, or assets");
-      } else {
+    
+      String value =
+          switch (column.toLowerCase()) {
+            case "revenue" -> target.revenue();
+            case "profits" -> target.profits();
+            case "marketValue" -> target.marketValue();
+            case "assets" -> target.assets();
+            default -> throw new NoSuchFieldException("Only pick revenue, profits, marketValue, or assets");
+          };
+        String amount = value.replaceAll("[^0-9.]", "");
         if (value.contains("M")) {
-          System.out.println("Million");
+          return Optional.of(new BigDecimal(amount).multiply(mMultiplier));
         } else {
-          String amount = value.replaceAll("[^0-9.]", "");
-          return new BigDecimal(amount).multiply(bMultiplier);
+          return Optional.of(new BigDecimal(amount).multiply(bMultiplier));
         }
-      }
-    } catch (NoSuchFieldException e) {
-      System.err.println(e.getMessage());
-    }
-    return null;
   }
 }
 ;

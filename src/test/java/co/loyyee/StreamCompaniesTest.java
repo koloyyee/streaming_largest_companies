@@ -63,20 +63,32 @@ class StreamCompaniesTest {
   }
   
   @Test
-  void shouldConvertStringToBillionInBigDecimal() {
+  void shouldConvertStringToBillionInBigDecimal() throws NoSuchFieldException {
     StreamCompanies sc = new StreamCompanies();
     var actual =  sc.covertStringToBigDecimal( "Penn Entertainment","revenue");
     var expected = new BigDecimal("651000000");
-    assertTrue(expected.compareTo(actual) == 0);
+    assertTrue(expected.compareTo(actual.get()) == 0);
   }
   
   @Test
-  void shouldConvertStringToMillionInBigDecimal() {
+  void shouldConvertStringToMillionInBigDecimal() throws NoSuchFieldException {
     StreamCompanies sc = new StreamCompanies();
     var actual =  sc.covertStringToBigDecimal( "Penn Entertainment","profits");
-    var expected = new BigDecimal("648900000");
-  
-    assertTrue(expected.compareTo(actual) == 0);
+    var expected = new BigDecimal("684900000");
+    System.out.println(actual.get());
+    System.out.println(expected );
+    assertTrue(expected.compareTo(actual.get()) == 0);
   }
   
+  @Test
+  void shouldThrowIfColumnNotAllowed() {
+    Exception exception = assertThrows( NoSuchFieldException.class, () -> {
+      StreamCompanies sc = new StreamCompanies();
+      sc.covertStringToBigDecimal( "Penn Entertainment","organizationName");
+    });
+    var actual = exception.getMessage();
+    System.out.println(actual);
+    var expected = "Only pick revenue, profits, marketValue, or assets";
+    assertTrue(actual.equals(expected));
+  }
 }
