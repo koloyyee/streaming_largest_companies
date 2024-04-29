@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /***
  * TODO:
@@ -83,6 +84,12 @@ public class StreamCompanies {
         .count();
   }
 
+  public List<Company> getCompaniesByCountry(String country) {
+    return this.getCompanies().stream()
+        .filter(company -> company.country().toLowerCase().contains(country.toLowerCase()))
+        .collect(Collectors.toList());
+  }
+
   /**
    * The columns of revenue, profits, assets, and marketValue are all in String with either "M" or
    * "B". <br>
@@ -102,7 +109,7 @@ public class StreamCompanies {
     Company target = getCompanyByOrgName(orgName);
 
     String value =
-        switch (column.toLowerCase()) {
+        switch (column) {
           case "revenue" -> target.revenue();
           case "profits" -> target.profits();
           case "marketValue" -> target.marketValue();
@@ -110,14 +117,14 @@ public class StreamCompanies {
           default ->
               throw new NoSuchFieldException("Only pick revenue, profits, marketValue, or assets");
         };
-    String amount = value.replaceAll("[^0-9.]", "");
+    String amount = value.replaceAll("[^0-9.]", "").replace(",", "");
     if (value.contains("M")) {
       return Optional.of(new BigDecimal(amount).multiply(mMultiplier));
     } else {
       return Optional.of(new BigDecimal(amount).multiply(bMultiplier));
     }
   }
-  
+
   public int convertRank(String rank) {
     return Integer.parseInt(rank.trim().replaceAll(",", ""));
   }
@@ -130,7 +137,8 @@ public class StreamCompanies {
             company -> {
               try {
                 Optional<BigDecimal> bigDecimal =
-                    this.convertStringToBigDecimal(company.organizationName(), Company.MonetaryColumn.Revenue.value());
+                    this.convertStringToBigDecimal(
+                        company.organizationName(), Company.MonetaryColumn.Revenue.value());
                 return bigDecimal.get();
               } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
@@ -139,32 +147,56 @@ public class StreamCompanies {
         .reduce(BigDecimal.ZERO, BigDecimal::add)
         .divide(BigDecimal.TEN);
   }
-  /**TODO-2 */
+
+  /** TODO-2 */
   public BigDecimal getTop10AvgProfits() {
-    return getCompanies().stream().limit(10).map(company -> {
-			try {
-				Optional<BigDecimal> profits =  this.convertStringToBigDecimal(company.organizationName(), Company.MonetaryColumn.Profits.value());
-        return profits.get();
-			} catch (NoSuchFieldException e) {
-				throw new RuntimeException(e);
-			}
-		}).reduce(BigDecimal.ZERO, BigDecimal::add).divide(BigDecimal.TEN);
+    return getCompanies().stream()
+        .limit(10)
+        .map(
+            company -> {
+              try {
+                Optional<BigDecimal> profits =
+                    this.convertStringToBigDecimal(
+                        company.organizationName(), Company.MonetaryColumn.Profits.value());
+                return profits.get();
+              } catch (NoSuchFieldException e) {
+                throw new RuntimeException(e);
+              }
+            })
+        .reduce(BigDecimal.ZERO, BigDecimal::add)
+        .divide(BigDecimal.TEN);
   }
-  
-  public BigDecimal getTopNAvgByColumn(Company.MonetaryColumn column, int size ) {
-    return getCompanies().stream().limit(size).map( company -> {
-			try {
-				Optional<BigDecimal> value = this.convertStringToBigDecimal(company.organizationName(), column.value());
-        return value.get();
-			} catch (NoSuchFieldException e) {
-				throw new RuntimeException(e);
-			}
-		}).reduce(BigDecimal.ZERO, BigDecimal::add).divide(new BigDecimal(size));
+
+  public BigDecimal getTopNAvgByColumn(Company.MonetaryColumn column, int size) {
+    return getCompanies().stream()
+        .limit(size)
+        .map(
+            company -> {
+              try {
+                Optional<BigDecimal> value =
+                    this.convertStringToBigDecimal(company.organizationName(), column.value());
+                return value.get();
+              } catch (NoSuchFieldException e) {
+                throw new RuntimeException(e);
+              }
+            })
+        .reduce(BigDecimal.ZERO, BigDecimal::add)
+        .divide(new BigDecimal(size));
   }
-  
+
   public BigDecimal getBottomNAvgByColumn(Company.MonetaryColumn column, int size) {
-    
-    return null;
+    return getCompanies().stream()
+        .skip(getCompanies().size() - size)
+        .map(
+            company -> {
+              try {
+                return convertStringToBigDecimal(company.organizationName(), column.value()).get();
+              } catch (NoSuchFieldException e) {
+                throw new RuntimeException(e);
+              }
+            })
+        .reduce(BigDecimal.ZERO, BigDecimal::add)
+        .divide(new BigDecimal(size));
   }
 }
 ;

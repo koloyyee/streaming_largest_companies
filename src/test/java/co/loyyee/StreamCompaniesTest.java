@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.math.BigDecimal;
 import java.util.NoSuchElementException;
 import org.junit.jupiter.api.Test;
+import java.util.List;
 
 class StreamCompaniesTest {
   @Test
@@ -183,6 +184,21 @@ class StreamCompaniesTest {
   }
   
   @Test
+  void shouldGetAvgMarketValueOfTop10Companies() {
+    
+    StreamCompanies sc = new StreamCompanies();
+    long length =  sc.getCompanies().stream().skip( sc.getCompanies().size() - 10).count();
+    assertEquals(length, 10);
+
+    BigDecimal avgMV =  sc.getTopNAvgByColumn(Company.MonetaryColumn.MarketValue, 10);
+    var expected = new BigDecimal("1002942000000");
+    System.out.println(avgMV);
+    System.out.println(expected);
+   assertTrue(avgMV.compareTo(expected) == 0 );
+   
+  }
+  
+  @Test
   void shouldConvertTo1998() {
     String target = "1,988";
     StreamCompanies sc = new StreamCompanies();
@@ -199,5 +215,20 @@ class StreamCompaniesTest {
     var expected = 988;
     assertEquals(expected, actual);
     
+  }
+  
+  @Test
+  void shouldGet24CompaniesCountFromSweden() {
+    StreamCompanies sc = new StreamCompanies();
+    int length =  sc.getCompaniesByCountry("Sweden").size();
+    var expectedLength = 24;
+    assertEquals(expectedLength, length);
+  }
+  @Test
+  void shouldGet714CompaniesCountFromUnited() {
+    StreamCompanies sc = new StreamCompanies();
+    int length =  sc.getCompaniesByCountry("united").size();
+    var expectedLength = 714;
+    assertEquals(expectedLength, length);
   }
 }
