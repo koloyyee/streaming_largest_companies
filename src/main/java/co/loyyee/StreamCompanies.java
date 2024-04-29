@@ -9,10 +9,25 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+/***
+ * TODO:
+ * 1. Get the average revenue of the top 10 companies {@link #getTop10AvgRevenue()}
+ * 2. Get the average profits of the top 10 companies
+ * 3. Get the average revenue of the bottom 10 companies
+ * 4. Get the average profits of the bottom 10 companies
+ * 5. Get the median revenue of all companies
+ * 6. Get the median profits of all companies
+ * 7. Get the median assets of all companies
+ * 8. Group companies by countries
+ * 9. Get company's profit margin.
+ * 10. Get company "time by earning" based on profit and market value
+ * 11. Get companies ROA
+ */
+
 public class StreamCompanies {
   private static final String filename = "largest_companies.csv";
+  private static List<Company> companies = new ArrayList<>();
   private final FileHandler fh = new FileHandler();
-  private List<Company> companies = new ArrayList<>();
 
   public StreamCompanies() {
     this.companies = getCompaniesFromCsv(fh);
@@ -20,16 +35,16 @@ public class StreamCompanies {
 
   public static void main(String[] args) {
 
-    StreamCompanies sc = new StreamCompanies();
-		try {
-			sc.covertStringToBigDecimal("JPMorgan Chase", "hello");
-		} catch (NoSuchFieldException e) {
-			throw new RuntimeException(e);
-		}
 	}
 
+/**
+* This is a static method that populate the class value companies,
+ * so only 1 set of companies was created.
+ * <br>
+ * @param fh - {@link FileHandler } access the CSV file from resource directory.
+ * @return - List of Companies
+*/
   public static List<Company> getCompaniesFromCsv(FileHandler fh) {
-
     List<Company> companies = new ArrayList<>();
     try {
       CSVReader reader = new CSVReader(new FileReader(fh.getResourceFile(filename)));
@@ -47,6 +62,12 @@ public class StreamCompanies {
     return companies;
   }
 
+  
+/**
+* When iterating the CSV, the header row was included,
+ * this method ensure it return all companies excluding the header row (the first row).
+ * @return a List of Companies
+*/
   public List<Company> getCompanies() {
     return companies.subList(1, companies.size());
   }
@@ -64,6 +85,17 @@ public class StreamCompanies {
         .count();
   }
 
+  
+/**
+* The columns of revenue, profits, assets, and marketValue are all in String with either "M" or "B". <br>
+ * M - represents millions<br>
+ * B -  represents  billions<br>
+ * covertStringToBigDecimal will convert String to BigDecimal according to the M or B.
+ * @param orgName Organization Name e.g.:JPMorgan Chase
+ * @param column only accept revenue, profits, assets, or marketValue else throw exception.
+ * @return Optional return of possibly null or BigDecimal in millions or billions.
+ * @throws NoSuchFieldException
+*/
   public Optional<BigDecimal> covertStringToBigDecimal(String orgName, String column) throws NoSuchFieldException {
     BigDecimal bMultiplier = new BigDecimal("100000000"); // billion multiplier
     BigDecimal mMultiplier = new BigDecimal("1000000"); // million multiplier
@@ -83,6 +115,20 @@ public class StreamCompanies {
         } else {
           return Optional.of(new BigDecimal(amount).multiply(bMultiplier));
         }
+  }
+  
+  /**
+   * TODO-1:
+   * */
+  public BigDecimal getTop10AvgRevenue() {
+    return getCompanies().stream().limit(10).map(company -> {
+			try {
+        Optional<BigDecimal> bigDecimal = this.covertStringToBigDecimal(company.organizationName(), "revenue");
+        return bigDecimal.get();
+			} catch (NoSuchFieldException e) {
+				throw new RuntimeException(e);
+			}
+		}).reduce(BigDecimal.ZERO, BigDecimal::add).divide(new BigDecimal(10));
   }
 }
 ;

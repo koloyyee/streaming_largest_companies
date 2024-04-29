@@ -91,4 +91,22 @@ class StreamCompaniesTest {
     var expected = "Only pick revenue, profits, marketValue, or assets";
     assertTrue(actual.equals(expected));
   }
+  
+  @Test
+  void shouldGetAvgRevenueOfTop10Companies() {
+    StreamCompanies sc = new StreamCompanies();
+    long length = sc.getCompanies().stream().limit(10).count();
+    assertEquals(length, 10);
+    BigDecimal avgRev = sc.getTop10AvgRevenue();
+    assertTrue(avgRev.compareTo(BigDecimal.ZERO) != 0);
+  }
+  @Test
+  void shouldGet2777930000000 () {
+    StreamCompanies sc = new StreamCompanies();
+    long length = sc.getCompanies().stream().limit(10).count();
+    assertEquals(length, 10);
+    BigDecimal avgRev = sc.getTop10AvgRevenue();
+    var expected = new BigDecimal("27779300000");
+   assertTrue(expected.compareTo(avgRev) == 0);
+  }
 }
