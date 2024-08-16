@@ -1,27 +1,42 @@
 package co.loyyee;
 
+import co.loyyee.db.FileHandler;
+import co.loyyee.dto.Company;
+import co.loyyee.utils.Converter;
 import com.opencsv.CSVIterator;
 import com.opencsv.CSVReader;
-import java.io.*;
+import java.io.FileReader;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /***
  * TODO:
- * 1. Get the average revenue of the top 10 companies {@link #getTop10AvgRevenue()}
- * 2. Get the average profits of the top 10 companies {@link #getTop10AvgProfits()}
- * 3. Get the average revenue of the bottom 10 companies
- * 4. Get the average profits of the bottom 10 companies
+ * [x] 1. Get the average revenue of the top 10 companies
+ * {@link #getTop10AvgRevenue()}
+ * <br>
+ * [x] 2. Get the average profits of the top 10 companies
+ * {@link #getTop10AvgProfits()}
+ * <br>
+ * 3. Get the average revenue of the bottom N companies
+ * {@link #getBottomNAvgByColumn(Company.MonetaryColumn, int)} ()}
+ * <br>
+ * 4. Get the average profits of the bottom N companies
+ * <br>
  * 5. Get the median revenue of all companies
+ * <br>
  * 6. Get the median profits of all companies
+ * <br>
  * 7. Get the median assets of all companies
+ * <br>
  * 8. Group companies by countries
+ * <br>
  * 9. Get company's profit margin.
+ * <br>
  * 10. Get company "time by earning" based on profit and market value
+ * <br>
  * 11. Get companies ROA
  */
 
@@ -43,15 +58,27 @@ public class StreamCompanies {
    * @param fh - {@link FileHandler } access the CSV file from resource directory.
    * @return - List of Companies
    */
-  public static List<Company> getCompaniesFromCsv(FileHandler fh) {
+  private static List<Company> getCompaniesFromCsv(FileHandler fh) {
     List<Company> companies = new ArrayList<>();
     try {
-      CSVReader reader = new CSVReader(new FileReader(fh.getResourceFile(filename)));
+      // CSVReader reader = new CSVReader(new FileReader(fh.getResourceFile(filename)));
+      Path file = Paths.get("src/main/resources/" + filename);
+      CSVReader reader = new CSVReader(new FileReader(file.toFile()));
       CSVIterator iterator = new CSVIterator(reader);
+      /** skipping header row */
+      iterator.next();
       for (CSVIterator it = iterator; it.hasNext(); ) {
         String[] line = it.next();
+        BigDecimal revenue = Converter.convertStringToBigDecimal(line[3]).orElse(BigDecimal.ZERO);
+        BigDecimal profits = Converter.convertStringToBigDecimal(line[4]).orElse(BigDecimal.ZERO);
+        BigDecimal assets = Converter.convertStringToBigDecimal(line[5]).orElse(BigDecimal.ZERO);
+        BigDecimal marketValue =
+            Converter.convertStringToBigDecimal(line[6]).orElse(BigDecimal.ZERO);
+
         Company company =
-            new Company(line[0], line[1], line[2], line[3], line[4], line[5], line[6]);
+            new Company(line[0], line[1], line[2], revenue, profits, assets, marketValue);
+        
+        System.out.println(company);
         companies.add(company);
       }
       return companies;
@@ -68,7 +95,7 @@ public class StreamCompanies {
    * @return a List of Companies
    */
   public List<Company> getCompanies() {
-    return companies.subList(1, companies.size());
+    return companies;
   }
 
   public Company getCompanyByOrgName(String orgName) {
@@ -90,79 +117,22 @@ public class StreamCompanies {
         .collect(Collectors.toList());
   }
 
-  /**
-   * The columns of revenue, profits, assets, and marketValue are all in String with either "M" or
-   * "B". <br>
-   * M - represents millions<br>
-   * B - represents billions<br>
-   * convertStringToBigDecimal will convert String to BigDecimal according to the M or B.
-   *
-   * @param orgName Organization Name e.g.:JPMorgan Chase
-   * @param column only accept revenue, profits, assets, or marketValue else throw exception.
-   * @return Optional return of possibly null or BigDecimal in millions or billions.
-   * @throws NoSuchFieldException
-   */
-  public Optional<BigDecimal> convertStringToBigDecimal(String orgName, String column)
-      throws NoSuchFieldException {
-    BigDecimal bMultiplier = new BigDecimal("1000000000"); // billion multiplier
-    BigDecimal mMultiplier = new BigDecimal("1000000"); // million multiplier
-    Company target = getCompanyByOrgName(orgName);
-
-    String value =
-        switch (column) {
-          case "revenue" -> target.revenue();
-          case "profits" -> target.profits();
-          case "marketValue" -> target.marketValue();
-          case "assets" -> target.assets();
-          default ->
-              throw new NoSuchFieldException("Only pick revenue, profits, marketValue, or assets");
-        };
-    String amount = value.replaceAll("[^0-9.]", "").replace(",", "");
-    if (value.contains("M")) {
-      return Optional.of(new BigDecimal(amount).multiply(mMultiplier));
-    } else {
-      return Optional.of(new BigDecimal(amount).multiply(bMultiplier));
-    }
-  }
-
   public int convertRank(String rank) {
     return Integer.parseInt(rank.trim().replaceAll(",", ""));
   }
 
-  /** TODO-1: */
   public BigDecimal getTop10AvgRevenue() {
     return getCompanies().stream()
         .limit(10)
-        .map(
-            company -> {
-              try {
-                Optional<BigDecimal> bigDecimal =
-                    this.convertStringToBigDecimal(
-                        company.organizationName(), Company.MonetaryColumn.Revenue.value());
-                return bigDecimal.get();
-              } catch (NoSuchFieldException e) {
-                throw new RuntimeException(e);
-              }
-            })
+        .map(company -> company.revenue())
         .reduce(BigDecimal.ZERO, BigDecimal::add)
         .divide(BigDecimal.TEN);
   }
 
-  /** TODO-2 */
   public BigDecimal getTop10AvgProfits() {
     return getCompanies().stream()
         .limit(10)
-        .map(
-            company -> {
-              try {
-                Optional<BigDecimal> profits =
-                    this.convertStringToBigDecimal(
-                        company.organizationName(), Company.MonetaryColumn.Profits.value());
-                return profits.get();
-              } catch (NoSuchFieldException e) {
-                throw new RuntimeException(e);
-              }
-            })
+        .map(company -> company.profits())
         .reduce(BigDecimal.ZERO, BigDecimal::add)
         .divide(BigDecimal.TEN);
   }
@@ -170,31 +140,26 @@ public class StreamCompanies {
   public BigDecimal getTopNAvgByColumn(Company.MonetaryColumn column, int size) {
     return getCompanies().stream()
         .limit(size)
-        .map(
-            company -> {
-              try {
-                Optional<BigDecimal> value =
-                    this.convertStringToBigDecimal(company.organizationName(), column.value());
-                return value.get();
-              } catch (NoSuchFieldException e) {
-                throw new RuntimeException(e);
-              }
-            })
+        .map(company -> switch (column) {
+                  case Company.MonetaryColumn.Profits -> company.profits();
+                  case Company.MonetaryColumn.Revenue -> company.revenue();
+                  case Company.MonetaryColumn.Assets -> company.assets();
+                  case Company.MonetaryColumn.MarketValue -> company.marketValue();
+                })
         .reduce(BigDecimal.ZERO, BigDecimal::add)
         .divide(new BigDecimal(size));
   }
 
+  /** todo -3 */
   public BigDecimal getBottomNAvgByColumn(Company.MonetaryColumn column, int size) {
     return getCompanies().stream()
         .skip(getCompanies().size() - size)
-        .map(
-            company -> {
-              try {
-                return convertStringToBigDecimal(company.organizationName(), column.value()).get();
-              } catch (NoSuchFieldException e) {
-                throw new RuntimeException(e);
-              }
-            })
+        .map(company -> switch (column) {
+          case Company.MonetaryColumn.Profits -> company.profits();
+          case Company.MonetaryColumn.Revenue -> company.revenue();
+          case Company.MonetaryColumn.Assets -> company.assets();
+          case Company.MonetaryColumn.MarketValue -> company.marketValue();
+        })
         .reduce(BigDecimal.ZERO, BigDecimal::add)
         .divide(new BigDecimal(size));
   }

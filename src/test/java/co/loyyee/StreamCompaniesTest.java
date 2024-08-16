@@ -4,8 +4,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.math.BigDecimal;
 import java.util.NoSuchElementException;
+
+import co.loyyee.dto.Company;
 import org.junit.jupiter.api.Test;
-import java.util.List;
 
 class StreamCompaniesTest {
   @Test

@@ -1,13 +1,15 @@
-package co.loyyee;
+package co.loyyee.dto;
+
+import java.math.BigDecimal;
 
 public record Company(
     String rank,
     String organizationName,
     String country,
-    String revenue,
-    String profits,
-    String assets,
-    String marketValue) {
+    BigDecimal revenue,
+    BigDecimal profits,
+    BigDecimal assets,
+    BigDecimal marketValue) {
   public enum MonetaryColumn {
     Revenue,
     Profits,

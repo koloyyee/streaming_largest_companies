@@ -2,6 +2,7 @@ package co.loyyee;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import co.loyyee.db.FileHandler;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 import java.io.File;

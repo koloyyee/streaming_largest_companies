@@ -1,10 +1,14 @@
 package co.loyyee;
 
+import co.loyyee.db.DB;
+import io.javalin.Javalin;
+
 public class Application {
 	
 	public static void main(String[] args){
+		Javalin app = Javalin.create();
+		DB conn = DB.conn;
 		
-		StreamCompanies sc = new StreamCompanies();
-		sc.getTop10AvgRevenue();
+		app.start(7070);
 	}
 }
