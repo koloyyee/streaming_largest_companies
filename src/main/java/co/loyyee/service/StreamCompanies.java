@@ -1,6 +1,6 @@
-package co.loyyee;
+package co.loyyee.service;
 
-import co.loyyee.db.FileHandler;
+import co.loyyee.utils.FileHandler;
 import co.loyyee.dto.Company;
 import co.loyyee.utils.Converter;
 import com.opencsv.CSVIterator;
@@ -42,11 +42,13 @@ import java.util.stream.Collectors;
 
 public class StreamCompanies {
   private static final String filename = "largest_companies.csv";
-  private static List<Company> companies = new ArrayList<>();
+  private List<Company> companies;
   private final FileHandler fh = new FileHandler();
 
   public StreamCompanies() {
-    this.companies = getCompaniesFromCsv(fh);
+    if(companies == null || companies.isEmpty()  ) {
+      this.companies = getCompaniesFromCsv(fh);
+    }
   }
 
   public static void main(String[] args) {}
@@ -77,11 +79,9 @@ public class StreamCompanies {
 
         Company company =
             new Company(line[0], line[1], line[2], revenue, profits, assets, marketValue);
-        
-        System.out.println(company);
         companies.add(company);
+//        System.out.println(company);
       }
-      return companies;
     } catch (Exception e) {
       System.out.println(e.getMessage());
     }
@@ -164,4 +164,3 @@ public class StreamCompanies {
         .divide(new BigDecimal(size));
   }
 }
-;

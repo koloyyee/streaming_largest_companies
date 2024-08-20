@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.util.NoSuchElementException;
 
 import co.loyyee.dto.Company;
+import co.loyyee.service.StreamCompanies;
 import org.junit.jupiter.api.Test;
 
 class StreamCompaniesTest {

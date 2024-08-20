@@ -1,4 +1,4 @@
-package co.loyyee.db;
+package co.loyyee.utils;
 
 import java.io.BufferedReader;
 import java.io.File;

@@ -1,6 +1,6 @@
 package co.loyyee.db;
 
-import co.loyyee.StreamCompanies;
+import co.loyyee.service.StreamCompanies;
 import co.loyyee.dto.Company;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.statement.PreparedBatch;
@@ -11,24 +11,23 @@ public class DB {
 
   private DB() {
 		jdbi = Jdbi.create("jdbc:sqlite:src/main/resources/db/lg_com.db");
-		if(tableSize() != 2000) {
+		Jdbi.open("jdbc:sqlite:src/main/resources/db/lg_com.db");
+		if(tableSize() == 0 ) {
 			insertCompanies();
 		}
   }
 
-  public int tableSize() {
+  private int tableSize() {
     return jdbi.withHandle(
-        handle -> handle
-						.createQuery("SELECT COUNT(*) FROM companies;")
+        handle -> handle.createQuery("SELECT COUNT(*) FROM companies;")
 						.mapTo(Integer.class)
 						.one());
   }
 
-  public void insertCompanies() {
+  private void insertCompanies() {
     // rank,organizationName,country,revenue,profits,assets,marketValue
     jdbi.withHandle(
-        handle -> {
-          handle.execute(
+        handle -> { handle.execute(
               """
 						CREATE TABLE IF NOT EXISTS \"companies\"
 						( rank INTEGER,organizationName VARCHAR, country VARCHAR,
