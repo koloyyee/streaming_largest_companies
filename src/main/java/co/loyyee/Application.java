@@ -20,6 +20,7 @@ public class Application {
         Javalin.create(
             config -> {
               config.fileRenderer(new JavalinJte(createTemplateEngine()));
+              config.staticFiles.enableWebjars();
               config.staticFiles.add(staticFileConfig -> staticFileConfig.hostedPath = "/public");
             });
     //		DB conn = DB.conn;
