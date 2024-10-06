@@ -141,10 +141,10 @@ public class StreamCompanies {
     return getCompanies().stream()
         .limit(size)
         .map(company -> switch (column) {
-                  case Company.MonetaryColumn.Profits -> company.profits();
-                  case Company.MonetaryColumn.Revenue -> company.revenue();
-                  case Company.MonetaryColumn.Assets -> company.assets();
-                  case Company.MonetaryColumn.MarketValue -> company.marketValue();
+                  case Profits -> company.profits();
+                  case Revenue -> company.revenue();
+                  case Assets -> company.assets();
+                  case MarketValue -> company.marketValue();
                 })
         .reduce(BigDecimal.ZERO, BigDecimal::add)
         .divide(new BigDecimal(size));
@@ -155,10 +155,10 @@ public class StreamCompanies {
     return getCompanies().stream()
         .skip(getCompanies().size() - size)
         .map(company -> switch (column) {
-          case Company.MonetaryColumn.Profits -> company.profits();
-          case Company.MonetaryColumn.Revenue -> company.revenue();
-          case Company.MonetaryColumn.Assets -> company.assets();
-          case Company.MonetaryColumn.MarketValue -> company.marketValue();
+          case Profits -> company.profits();
+          case Revenue -> company.revenue();
+          case Assets -> company.assets();
+          case MarketValue -> company.marketValue();
         })
         .reduce(BigDecimal.ZERO, BigDecimal::add)
         .divide(new BigDecimal(size));

@@ -1,4 +1,6 @@
 @template.layout(title = "company", content = @`
+
+    <h1> Hello World! </h1>
     <div id="replace_me"> </div>
     <form>
         <select name="n_companies"  hx-get="/show_companies" hx-target="#replace_me" >

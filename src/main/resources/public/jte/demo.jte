@@ -1,4 +1,4 @@
-@import co.loyyee.jte.IndexPage
+@import co.loyyee.jte_page.IndexPage
 
 @param IndexPage page
 

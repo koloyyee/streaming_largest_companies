@@ -1,5 +1,7 @@
 package co.loyyee.dto;
 
+import io.jstach.jstache.JStache;
+
 import java.math.BigDecimal;
 
 public record Company(
@@ -24,5 +26,15 @@ public record Company(
             + this.name().substring(1, this.name().length());
       }
     }
+  }
+  public String revenueStr() {
+    return revenue().toPlainString();
+  }
+  public String profitStr() {
+    return profits().toPlainString();
+  }
+  
+  public double profitMargin() {
+    return profits.divide(revenue, BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).doubleValue();
   }
 }
