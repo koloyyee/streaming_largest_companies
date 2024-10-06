@@ -1,4 +1,4 @@
-package co.loyyee.jte_page;
+package co.loyyee.jte;
 
 import java.util.Collections;
 

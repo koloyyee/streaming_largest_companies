@@ -1,4 +1,4 @@
-package co.loyyee.jte_page;
+package co.loyyee.jte;
 
 public class IndexPage {
 	public String message;

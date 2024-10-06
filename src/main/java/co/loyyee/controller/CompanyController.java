@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import co.loyyee.dto.Company;
-import co.loyyee.jte_page.CompaniesPage;
-import co.loyyee.jte_page.Page;
+import co.loyyee.jte.CompaniesPage;
+import co.loyyee.jte.Page;
 import co.loyyee.service.StreamCompanies;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
