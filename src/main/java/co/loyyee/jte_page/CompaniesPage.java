@@ -1,11 +1,10 @@
-package co.loyyee.jte;
+package co.loyyee.jte_page;
+
+import java.util.Optional;
 
 import co.loyyee.dto.Company;
 import co.loyyee.service.StreamCompanies;
 import io.javalin.http.Context;
-
-import java.util.Optional;
-import java.util.stream.Stream;
 
 public class CompaniesPage extends Page {
 
@@ -41,6 +40,8 @@ public class CompaniesPage extends Page {
 							""",
               c.rank(), c.organizationName(), c.country(), c.assets()));
     }
+		
+		
     return sb.toString();
   }
 	

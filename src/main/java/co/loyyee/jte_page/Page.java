@@ -1,10 +1,8 @@
-package co.loyyee.jte;
-
-import gg.jte.extension.api.JteConfig;
-import io.javalin.http.Context;
-import io.javalin.rendering.template.JavalinJte;
+package co.loyyee.jte_page;
 
 import java.util.Collections;
+
+import io.javalin.http.Context;
 
 public abstract class Page {
 	protected final Context ctx;
